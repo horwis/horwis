@@ -37,7 +37,7 @@ jobs:
           --exclude-module numpy.testing \
           --exclude-module pandas.testing \
           --name 手机号合并去重工具 \
-          phone_merge.py
+          merge_phones.py
 
     - name: 压缩打包产物
       run: |
