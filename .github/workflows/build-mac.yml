@@ -1,0 +1,38 @@
+name: 打包Mac版程序
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # 支持手动触发打包
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - name: 拉取代码
+      uses: actions/checkout@v4
+
+    - name: 配置Python环境
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: 安装依赖库
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas openpyxl pyinstaller
+
+    - name: 执行PyInstaller打包
+      run: |
+        pyinstaller -F -w --name 手机号合并去重工具 phone_merge.py
+
+    - name: 压缩打包产物
+      run: |
+        cd dist
+        zip -r 手机号合并去重工具_Mac.zip 手机号合并去重工具.app
+
+    - name: 上传可下载文件
+      uses: actions/upload-artifact@v4
+      with:
+        name: Mac版程序包
+        path: dist/手机号合并去重工具_Mac.zip
