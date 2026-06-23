@@ -3,11 +3,12 @@ name: 打包Mac版程序
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # 支持手动触发打包
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
+    timeout-minutes: 15  # 超过15分钟自动终止，防止无限卡住
     steps:
     - name: 拉取代码
       uses: actions/checkout@v4
@@ -17,14 +18,26 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: 安装依赖库
+    - name: 安装依赖库（清华源加速）
       run: |
         python -m pip install --upgrade pip
-        pip install pandas openpyxl pyinstaller
+        pip install pandas openpyxl pyinstaller -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-    - name: 执行PyInstaller打包
+    - name: 执行PyInstaller打包（优化提速版）
       run: |
-        pyinstaller -F -w --name 手机号合并去重工具 phone_merge.py
+        pyinstaller -w --clean \
+          --exclude-module matplotlib \
+          --exclude-module scipy \
+          --exclude-module sympy \
+          --exclude-module PIL \
+          --exclude-module pytest \
+          --exclude-module unittest \
+          --exclude-module IPython \
+          --exclude-module notebook \
+          --exclude-module numpy.testing \
+          --exclude-module pandas.testing \
+          --name 手机号合并去重工具 \
+          phone_merge.py
 
     - name: 压缩打包产物
       run: |
